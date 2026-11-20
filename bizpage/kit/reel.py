@@ -1,5 +1,6 @@
 """Animated explainer Reel (1080x1920, 24 fps): icon pops in, cost meter fills, steps slide in, bars grow, spoken line shown as subtitles.
-Voice: 13-year-old-boy style Hinglish (Gemini TTS 'Puck' + kid style prompt, or Edge with a pitch lift). Music: royalty-free from music/ or generated."""
+Voice: young-man (about 20) style Hinglish (Gemini TTS 'Puck' + kid style prompt, or Edge with a pitch lift). Music: royalty-free from music/ or generated."""
+import os
 import random
 import shutil
 import subprocess
@@ -24,10 +25,42 @@ def _wav_len(p):
         return w.getnframes() / w.getframerate()
 
 
+def _f0(path):
+    """median pitch (Hz) of a wav clip, simple autocorrelation (good enough to tell a deep voice from a squeaky one)"""
+    import numpy as np
+    with wave.open(str(path)) as w:
+        sr = w.getframerate()
+        x = np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(float)
+    out = []
+    for s in range(0, len(x) - 1024, 512):
+        fr = x[s:s + 1024]
+        if np.sqrt((fr ** 2).mean()) < 1500:
+            continue
+        fr = (fr - fr.mean()) * np.hanning(1024)
+        ac = np.correlate(fr, fr, "full")[1024:]
+        lo, hi = int(sr / 400), int(sr / 70)
+        seg = ac[lo:hi]
+        if seg.max() / ac[0] < .4:
+            continue
+        out.append(sr / (lo + np.where(seg >= .9 * seg.max())[0][0]))
+    return float(np.median(out)) if out else 0.0
+
+
+F0_MAX = float(os.getenv("VOICE_F0_MAX") or 175)      # a natural young man is about 110-170 Hz; above this the voice sounds cartoonish
+F0_TARGET = float(os.getenv("VOICE_F0_TARGET") or 145)
+
+
 def _to_wav(src, dst):
-    f = voice.PITCH if voice.KID else 1.0
+    tmp = Path(str(dst) + ".tmp.wav")
+    subprocess.run([FFMPEG, "-y", "-loglevel", "error", "-i", str(src), "-ar", "44100", "-ac", "1", str(tmp)], check=True)
+    f0 = _f0(tmp)
+    f = voice.PITCH
+    if f0 > F0_MAX and f == 1.0:                       # too high: lower towards a natural male pitch (never more than -22%)
+        f = max(.78, F0_TARGET / f0)
     af = f"asetrate=44100*{f:.3f},aresample=44100,atempo={1 / f:.4f}" if abs(f - 1) > .01 else "anull"
-    subprocess.run([FFMPEG, "-y", "-loglevel", "error", "-i", str(src), "-ar", "44100", "-ac", "1", "-af", af, str(dst)], check=True)
+    subprocess.run([FFMPEG, "-y", "-loglevel", "error", "-i", str(tmp), "-af", af, str(dst)], check=True)
+    tmp.unlink(missing_ok=True)
+    print(f"voice pitch: {f0:.0f} Hz, shift x{f:.2f} -> about {f0 * f:.0f} Hz", flush=True)
 
 
 def _voices(texts, tmp, mode, lang):
