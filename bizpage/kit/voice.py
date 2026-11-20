@@ -15,7 +15,7 @@ KID = (os.getenv("VOICE_YOUNG") or "1") != "0"        # young-man (about 20) sty
 PITCH = float(os.getenv("VOICE_PITCH") or 1.0)           # 1.0 = natural; >1 raises pitch, <1 lowers it
 
 STYLE = {
-    "kid": "a friendly 20-year-old Indian young man explaining a cool business idea to his friends, natural Hinglish (Hindi and English mixed), natural deep-ish male voice (chest voice, not high-pitched) with a young energetic confident tone, cheerful at a calm clear medium pace, never robotic, never childish, never like a newsreader",
+    "kid": "a friendly 16-year-old Indian teenage boy explaining a cool business idea to his friends, natural Hinglish (Hindi and English mixed), a natural teenage boy voice, slightly youthful but already a boy's voice (not a child, not a girl, not a cartoon), energetic and curious, cheerful at a calm clear medium pace, never robotic, never like a newsreader",
     "hinglish": "natural Hinglish (Hindi and English mixed) as a friendly young Indian creator talks on Instagram; warm, upbeat and conversational at a calm, clear, medium pace (not rushed, not fast), "
                 "expressive intonation, stresses the key word, tiny natural pauses at commas, smiling voice, never flat, never robotic or newsreader-like",
     "hindi": "natural spoken Hindi, warm friendly and lively like a creator talking to friends; expressive, small natural pauses, never robotic",
