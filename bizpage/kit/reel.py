@@ -46,8 +46,8 @@ def _f0(path):
     return float(np.median(out)) if out else 0.0
 
 
-F0_MAX = float(os.getenv("VOICE_F0_MAX") or 175)      # a natural young man is about 110-170 Hz; above this the voice sounds cartoonish
-F0_TARGET = float(os.getenv("VOICE_F0_TARGET") or 145)
+F0_MAX = float(os.getenv("VOICE_F0_MAX") or 195)      # a natural 16-year-old boy is about 120-190 Hz; above this the voice sounds cartoonish
+F0_TARGET = float(os.getenv("VOICE_F0_TARGET") or 160)
 
 
 def _to_wav(src, dst):
