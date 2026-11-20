@@ -1,0 +1,29 @@
+{
+ "used": [
+  "Home Bakery"
+ ],
+ "count": 1,
+ "date": "2026-11-20",
+ "slots": [
+  {
+   "t": "10:03",
+   "fmt": "poster",
+   "done": false
+  },
+  {
+   "t": "11:51",
+   "fmt": "carousel",
+   "done": false
+  },
+  {
+   "t": "18:49",
+   "fmt": "reel",
+   "done": false
+  },
+  {
+   "t": "21:50",
+   "fmt": "poster",
+   "done": false
+  }
+ ]
+}
