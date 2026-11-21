@@ -10,9 +10,12 @@ import wave
 from pathlib import Path
 
 G_API = "https://generativelanguage.googleapis.com/v1beta"
-GENDER = (os.getenv("VOICE_GENDER") or "F").upper()[:1]
+GENDER = (os.getenv("VOICE_GENDER") or "M").upper()[:1]
+KID = (os.getenv("VOICE_YOUNG") or "1") != "0"        # young-man (about 20) style prompt
+PITCH = float(os.getenv("VOICE_PITCH") or 1.0)           # 1.0 = natural; >1 raises pitch, <1 lowers it
 
 STYLE = {
+    "kid": "a friendly 16-year-old Indian teenage boy explaining a cool business idea to his friends, natural Hinglish (Hindi and English mixed), a natural teenage boy voice, slightly youthful but already a boy's voice (not a child, not a girl, not a cartoon), energetic and curious, cheerful at a calm clear medium pace, never robotic, never like a newsreader",
     "hinglish": "natural Hinglish (Hindi and English mixed) as a friendly young Indian creator talks on Instagram; warm, upbeat and conversational at a calm, clear, medium pace (not rushed, not fast), "
                 "expressive intonation, stresses the key word, tiny natural pauses at commas, smiling voice, never flat, never robotic or newsreader-like",
     "hindi": "natural spoken Hindi, warm friendly and lively like a creator talking to friends; expressive, small natural pauses, never robotic",
@@ -68,7 +71,7 @@ def gemini(text, lang, out):
     hdr = {"x-goog-api-key": os.environ["GEMINI_API_KEY"], "Content-Type": "application/json"}
     voice = os.getenv("GEMINI_TTS_VOICE_M" if GENDER == "M" else "GEMINI_TTS_VOICE_F") or ("Charon" if GENDER == "M" else "Sulafat")
     safe = "Charon" if GENDER == "M" else "Kore"
-    style = os.getenv("GEMINI_TTS_STYLE") or STYLE.get(lang, STYLE["english"])
+    style = os.getenv("GEMINI_TTS_STYLE") or (STYLE["kid"] if KID else STYLE.get(lang, STYLE["english"]))
     models = [m for m in dict.fromkeys([os.getenv("GEMINI_TTS_MODEL") or "", "gemini-3.8-flash-tts", "gemini-3.8-flash-lite-tts"]) if m]
     errs, deadline = [], time.time() + 120
     for model in models + ["gemini-2.5-flash-preview-tts"]:
@@ -165,7 +168,7 @@ def edge(text, lang, out):
     import edge_tts
     f, m = EDGE.get(lang, EDGE["english"])
     v = os.getenv("EDGE_VOICE") or (m if (os.getenv("VOICE_GENDER") or "F").upper()[:1] == "M" else f)
-    asyncio.run(edge_tts.Communicate(text, v, rate=_rate()).save(str(out)))
+    asyncio.run(edge_tts.Communicate(text, v, rate=_rate(), pitch="+0Hz").save(str(out)))
     return "edge:" + v
 
 
