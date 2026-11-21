@@ -3,30 +3,31 @@
   "Home Bakery",
   "Custom T-Shirt Printing",
   "Doorstep Bike Wash",
-  "Canva Design Assistant"
+  "Canva Design Assistant",
+  "Doorstep Sofa Cleaning"
  ],
- "count": 4,
+ "count": 5,
  "date": "2026-11-21",
  "slots": [
   {
    "t": "08:15",
    "fmt": "poster",
-   "done": false
+   "done": true
   },
   {
    "t": "13:55",
    "fmt": "carousel",
-   "done": false
+   "done": true
   },
   {
    "t": "17:08",
    "fmt": "poster",
-   "done": false
+   "done": true
   },
   {
    "t": "21:03",
    "fmt": "reel",
-   "done": false
+   "done": true
   }
  ]
 }
