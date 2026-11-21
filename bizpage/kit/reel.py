@@ -54,9 +54,10 @@ def _to_wav(src, dst):
     tmp = Path(str(dst) + ".tmp.wav")
     subprocess.run([FFMPEG, "-y", "-loglevel", "error", "-i", str(src), "-ar", "44100", "-ac", "1", str(tmp)], check=True)
     f0 = _f0(tmp)
-    f = voice.PITCH
-    if f0 > F0_MAX and f == 1.0:                       # too high: lower towards a natural male pitch (never more than -22%)
-        f = max(.78, F0_TARGET / f0)
+    f = getattr(voice, "PITCH", 1.0)                   # your own VOICE_PITCH, if set
+    if f0 * f > F0_MAX:                                 # still too high: lower towards a natural male pitch
+        f = f * (F0_TARGET / (f0 * f))
+    f = max(.72, min(1.3, f))
     af = f"asetrate=44100*{f:.3f},aresample=44100,atempo={1 / f:.4f}" if abs(f - 1) > .01 else "anull"
     subprocess.run([FFMPEG, "-y", "-loglevel", "error", "-i", str(tmp), "-af", af, str(dst)], check=True)
     tmp.unlink(missing_ok=True)
@@ -203,6 +204,8 @@ def build(idea, num, handle, palette, out_path, voice_mode="auto", seed=7, lang=
     order = ["hook", "what", "invest", "steps", "earn", "cta"]
     texts = [idea["say"][k] for k in order]
     wavs, vlabel = _voices(texts, tmp, voice_mode, lang)
+    if voice_mode != "none" and not all(wavs):            # never post a silent Reel by accident
+        raise RuntimeError("voice failed for some scenes, Reel not made (see 'voice failed' lines above)")
     vlens = [_wav_len(w) if w else 3.2 for w in wavs]
     durs = [v + PAD + (1.2 if k == 5 else 0) for k, v in enumerate(vlens)]
     cmd = [FFMPEG, "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{RW}x{RH}", "-r", str(FPS), "-i", "-",
