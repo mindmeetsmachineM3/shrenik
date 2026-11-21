@@ -106,7 +106,8 @@ def normalise(i, cfg):
     q = i.get("question") or "Which business should we explain next?"
     i["question"] = q
     cap = i.get("captions") or {}
-    base = f"{i['name']}: {i['pitch']}\nStart: ~{words(i['invest_low'])}-{words(i['invest_high'])} rupees. Earn: ~{words(i['earn_low'])}-{words(i['earn_high'])}/month (approx, not guaranteed).\n{q}\nFollow @{h} for a new business idea daily."
+    from .gfx import inr
+    base = f"{i['name']}: {i['pitch']}\nStart: ~{inr(i['invest_low'])} to {inr(i['invest_high'])}. Earn: ~{inr(i['earn_low'])} to {inr(i['earn_high'])} per month (approx, not guaranteed).\n{q}\nFollow @{h} for a new business idea daily."
     i["captions"] = {k: cap.get(k) or base for k in ("post", "carousel", "reel")}
     i["hashtags"] = i.get("hashtags") or cfg["hashtags_base"]
     return i
@@ -115,11 +116,18 @@ def normalise(i, cfg):
 def _call(prompt, key):
     import requests
     last = ""
-    for m in [m for m in (os.getenv("PAGE_MODELS") or "gemini-3.6-flash,gemini-3.5-flash,gemini-3.7-flash").split(",") if m]:
+    import time
+    deadline = time.time() + int(os.getenv("GEMINI_TOTAL_SECONDS") or 150)
+    tries = [m for m in (os.getenv("PAGE_MODELS") or "gemini-3.6-flash,gemini-3.5-flash,gemini-3.7-flash").split(",") if m] * 3   # 3 rounds: 503 "high demand" is usually short
+    for n_try, m in enumerate(tries):
+        if time.time() > deadline:
+            break
+        if n_try and n_try % 3 == 0:
+            time.sleep(12)                                                                                                       # wait a little between rounds
         print(f"Gemini: asking {m} ...", flush=True)
         try:
             r = requests.post(f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent", headers={"x-goog-api-key": key, "Content-Type": "application/json"},
-                              json={"contents": [{"parts": [{"text": prompt}]}], "generationConfig": {"temperature": .95, "responseMimeType": "application/json"}}, timeout=int(os.getenv("GEMINI_TIMEOUT") or 70))
+                              json={"contents": [{"parts": [{"text": prompt}]}], "generationConfig": {"temperature": .95, "responseMimeType": "application/json"}}, timeout=int(os.getenv("GEMINI_TIMEOUT") or 45))
             if r.ok:
                 t = r.json()["candidates"][0]["content"]["parts"][0]["text"]
                 return json.loads(re.sub(r"^```(?:json)?|```$", "", t.strip(), flags=re.M).strip())
