@@ -46,8 +46,8 @@ def _f0(path):
     return float(np.median(out)) if out else 0.0
 
 
-F0_MAX = float(os.getenv("VOICE_F0_MAX") or 195)      # a natural 16-year-old boy is about 120-190 Hz; above this the voice sounds cartoonish
-F0_TARGET = float(os.getenv("VOICE_F0_TARGET") or 160)
+F0_MAX = float(os.getenv("VOICE_F0_MAX") or 215)      # a natural 16-year-old boy is about 120-200 Hz; above this the voice sounds cartoonish
+F0_TARGET = float(os.getenv("VOICE_F0_TARGET") or 175)
 
 
 def _to_wav(src, dst):
@@ -57,8 +57,10 @@ def _to_wav(src, dst):
     f = getattr(voice, "PITCH", 1.0)                   # your own VOICE_PITCH, if set
     if f0 * f > F0_MAX:                                 # still too high: lower towards a natural male pitch
         f = f * (F0_TARGET / (f0 * f))
-    f = max(.72, min(1.3, f))
+    f = max(.88, min(1.3, f))            # small shifts only: big downshifts make the voice boomy
     af = f"asetrate=44100*{f:.3f},aresample=44100,atempo={1 / f:.4f}" if abs(f - 1) > .01 else "anull"
+    cut = float(os.getenv("VOICE_BASS_CUT") or 3)                   # dB taken off the boomy 100-250 Hz range, plus a little presence at 3 kHz
+    af += f",highpass=f=100,equalizer=f=170:t=q:w=0.9:g=-{cut},equalizer=f=3000:t=q:w=1.2:g=2.5"
     subprocess.run([FFMPEG, "-y", "-loglevel", "error", "-i", str(tmp), "-af", af, str(dst)], check=True)
     tmp.unlink(missing_ok=True)
     print(f"voice pitch: {f0:.0f} Hz, shift x{f:.2f} -> about {f0 * f:.0f} Hz", flush=True)
@@ -230,7 +232,7 @@ def build(idea, num, handle, palette, out_path, voice_mode="auto", seed=7, lang=
         raise RuntimeError("ffmpeg video encode failed")
     mlabel = music.pick(total + 1, seed, tmp / "beat.wav", ROOT / "music", FFMPEG)
     ins = ["-i", str(tmp / "video.mp4"), "-i", str(tmp / "beat.wav")]
-    parts, labels, kk, t0 = ["[1:a]volume=0.22[b]"], ["[b]"], 2, 0.0
+    parts, labels, kk, t0 = ["[1:a]highpass=f=150,volume=0.2[b]"], ["[b]"], 2, 0.0
     for i, w in enumerate(wavs):
         if w:
             ins += ["-i", str(w)]
