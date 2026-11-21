@@ -1,8 +1,13 @@
-"""Auto-post to Instagram: 4 random times per day (IST), one new business idea per post.
-python autopost.py [--dry-run] [--diagnose] [--force reel|carousel|poster]"""
-import argparse, datetime as dt, json, os, random, sys
+"""Auto-post to Instagram. Run every 20 min by GitHub Actions. Each day it picks 4 random times (IST) and 4 formats, and posts the next
+slot that is due and not yet posted.   python autopost.py [--dry-run] [--diagnose] [--force fmt]"""
+import argparse
+import datetime as dt
+import json
+import random
+import sys
+from pathlib import Path
 
-from kit import content, gfx, ig, posters, reel
+from kit import content, ig, news as N, posters, reel, style
 from kit.common import ROOT
 
 IST = dt.timezone(dt.timedelta(hours=5, minutes=30))
@@ -11,66 +16,91 @@ FMTS = ["reel", "carousel", "poster", "poster"]
 ST = ROOT / "state.json"
 
 ap = argparse.ArgumentParser()
-ap.add_argument("--dry-run", action="store_true"); ap.add_argument("--diagnose", action="store_true")
-ap.add_argument("--force", choices=["reel", "carousel", "poster"])
+ap.add_argument("--dry-run", action="store_true")
+ap.add_argument("--diagnose", action="store_true")
+ap.add_argument("--force", choices=["reel", "carousel", "poster"], help="post this format now, ignoring the schedule")
 a = ap.parse_args()
 if a.diagnose:
-    ig.diagnose(); sys.exit(0)
+    ig.diagnose()
+    sys.exit(0)
 
-cfg = json.loads((ROOT / "config.json").read_text(encoding="utf-8"))
-os.environ.setdefault("VOICE_GENDER", cfg.get("voice_gender", "M"))
+import os
+os.environ.setdefault("VOICE_GENDER", str(content.load_json("config.json").get("voice_gender", "M")))
 now = dt.datetime.now(IST)
-today, hm = now.strftime("%Y-%m-%d"), now.strftime("%H:%M")
+today = now.strftime("%Y-%m-%d")
 state = json.loads(ST.read_text()) if ST.exists() else {}
-state.setdefault("used", []); state.setdefault("count", 0)
-if state.get("date") != today:
-    r = random.Random(today); f = FMTS[:]; r.shuffle(f); slots = []
+state.setdefault("history", [])
+state.setdefault("news_seen", [])
+if state.get("date") != today:                                   # new day: new random plan
+    r = random.Random(today)
+    f = FMTS[:]
+    r.shuffle(f)
+    slots = []
     for (a0, a1), fm in zip(WINS, f):
         m = int(r.uniform(a0, a1) * 60)
         slots.append({"t": f"{m // 60:02d}:{m % 60:02d}", "fmt": fm, "done": False})
     state.update(date=today, slots=sorted(slots, key=lambda s: s["t"]))
     print("Today's plan:", [(s["t"], s["fmt"]) for s in state["slots"]])
+hm = now.strftime("%H:%M")
 if a.force:
-    slot = {"t": hm, "fmt": a.force, "done": False}
+    slot = {"t": hm, "fmt": a.force, "done": False, "forced": True}
 else:
-    slot = next((s for s in state["slots"] if not s["done"] and s["t"] <= hm), None)
+    slot = None
+    for s_ in state["slots"]:
+        if s_["done"] or s_["t"] > hm:
+            continue
+        late = (dt.datetime.strptime(hm, "%H:%M") - dt.datetime.strptime(s_["t"], "%H:%M")).seconds
+        if late > 4 * 3600:
+            s_["done"] = True; print("Slot missed, skipping", s_); continue
+        slot = s_; break
     if not slot:
-        print("Nothing due now.", hm, [(s["t"], s["fmt"], s["done"]) for s in state["slots"]]); ST.write_text(json.dumps(state, indent=1)); sys.exit(0)
-    late = (dt.datetime.strptime(hm, "%H:%M") - dt.datetime.strptime(slot["t"], "%H:%M")).seconds
-    if late > 3 * 3600:
-        slot["done"] = True; print("Slot missed, skipping", slot); ST.write_text(json.dumps(state, indent=1)); sys.exit(0)
+        print("Nothing due now.", hm, [(x["t"], x["fmt"], x["done"]) for x in state["slots"]])
+        ST.write_text(json.dumps(state, indent=1))
+        sys.exit(0)
 
-seed = int(now.strftime("%y%m%d")) * 100 + state["count"] % 100
+cfg, facts = content.load_json("config.json"), content.load_json("facts.json")
+seed = int(now.strftime("%y%m%d")) * 10 + len(state["slots"]) + sum(s["done"] for s in state["slots"])
 rng = random.Random(seed)
-pal = rng.choice(list(gfx.PALETTES)); P = gfx.Pal(pal); tf = rng.choice(gfx.TITLE_FONTS[:3]); h = cfg["handle"]
-idea, how = content.make_idea(cfg, rng, True, state["used"])
-num = state["count"] + 1
-out = ROOT / "output" / f"post_{seed}"; out.mkdir(parents=True, exist_ok=True)
-tags = " ".join(idea["hashtags"][:10]); fmt = slot["fmt"]
-print(f"Making a {fmt}: {idea['name']} ({how})")
+pal = rng.choice(list(style.PALETTES))
+todays = N.fetch(state["news_seen"])
+print(f"News found: {len(todays)}", [n["title"][:50] for n in todays[:4]])
+c, how = content.make_pack(cfg, facts, rng, True, state["history"], todays)
+out = ROOT / "output" / f"post_{seed}"
+out.mkdir(parents=True, exist_ok=True)
+h = cfg["handle"]
+tags = " ".join((c.get("hashtags") or cfg["hashtags_base"])[:10])
+cap = c.get("captions", {})
+fmt = slot["fmt"]
+print(f"Making a {fmt} for slot {slot['t']} ({how})")
 try:
     if fmt == "reel":
         p = out / "reel.mp4"
-        info = reel.build(idea, num, h, pal, p, "auto", seed, cfg.get("voice_lang", "hinglish"))
-        caption = f"{idea['captions']['reel']}\n\n{tags}"; print(info)
+        reel.build(c, h, pal, p, "auto", seed, lang=cfg.get("voice_lang", "hinglish"))
+        caption = f"{cap.get('reel', '')}\n\n{tags}"
         mid = None if a.dry_run else ig.reel(str(p), caption)
     elif fmt == "carousel":
+        ims = posters.carousel(c["carousel"], style.Pal(pal), seed, h)
         ps = []
-        for k, im in enumerate(posters.carousel(idea, P, seed, h, num, tf), 1):
-            q = out / f"c{k}.jpg"; im.save(q, quality=93); ps.append(str(q))
-        caption = f"{idea['captions']['carousel']}\n\n{tags}"
+        for i, im in enumerate(ims, 1):
+            q = out / f"c{i}.jpg"
+            im.save(q, quality=93)
+            ps.append(str(q))
+        caption = f"{cap.get('carousel', '')}\n\n{tags}"
         mid = None if a.dry_run else ig.carousel(ps, caption)
     else:
+        i = rng.randrange(len(c["posters"]))
         q = out / "poster.jpg"
-        (posters.post_card if rng.random() < .5 else posters.post_numbers)(idea, P, seed, h, num, tf).save(q, quality=93)
-        caption = f"{idea['captions']['post']}\n\n{tags}"
+        posters.poster(c["posters"][i], style.Pal(pal), seed, h, 1, 1).save(q, quality=93)
+        caption = f"{cap.get('poster_%d' % (i + 1), '')}\n\n{tags}"
         mid = None if a.dry_run else ig.image(str(q), caption)
 except ig.TokenError as ex:
-    print("TOKEN/ACCOUNT PROBLEM:", ex, file=sys.stderr); sys.exit(3)
-(out / "caption_and_hashtags.txt").write_text(f"FORMAT: {fmt}\nIDEA: {idea['name']} ({how})\n\n--- CAPTION ---\n{caption}\n", encoding="utf-8")
+    print("TOKEN/ACCOUNT PROBLEM:", ex, file=sys.stderr)
+    sys.exit(3)
+(out / "caption_and_hashtags.txt").write_text(f"FORMAT: {fmt}\nCOPY: {how}\n\n--- CAPTION (posted exactly like this) ---\n{caption}\n", encoding="utf-8")
 print("Caption:\n" + caption)
 print("Posted media id:" if mid else "Dry run (not posted).", mid or "")
 if not a.dry_run:
     slot["done"] = True
-    state["used"] = (state["used"] + [idea["name"]])[-80:]; state["count"] += 1
+    state["history"] = (state["history"] + content.lines_used(c))[-120:]
+    state["news_seen"] = (state["news_seen"] + [n["title"] for n in todays[:4]])[-80:]
 ST.write_text(json.dumps(state, indent=1))
