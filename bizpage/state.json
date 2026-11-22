@@ -5,9 +5,10 @@
   "Doorstep Bike Wash",
   "Canva Design Assistant",
   "Doorstep Sofa Cleaning",
-  "Fresh Fruit Bowl Delivery"
+  "Fresh Fruit Bowl Delivery",
+  "Mosquito Net Installation"
  ],
- "count": 6,
+ "count": 7,
  "date": "2026-11-22",
  "slots": [
   {
@@ -23,12 +24,12 @@
   {
    "t": "16:31",
    "fmt": "poster",
-   "done": false
+   "done": true
   },
   {
    "t": "21:12",
    "fmt": "poster",
-   "done": false
+   "done": true
   }
  ]
 }
