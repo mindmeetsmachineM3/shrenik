@@ -9,27 +9,27 @@
   "Mosquito Net Installation"
  ],
  "count": 7,
- "date": "2026-11-22",
+ "date": "2026-11-23",
  "slots": [
   {
-   "t": "09:34",
-   "fmt": "reel",
-   "done": true
+   "t": "09:20",
+   "fmt": "poster",
+   "done": false
   },
   {
-   "t": "12:07",
+   "t": "13:56",
    "fmt": "carousel",
-   "done": true
+   "done": false
   },
   {
-   "t": "16:31",
+   "t": "18:34",
    "fmt": "poster",
-   "done": true
+   "done": false
   },
   {
-   "t": "21:12",
-   "fmt": "poster",
-   "done": true
+   "t": "22:18",
+   "fmt": "reel",
+   "done": false
   }
  ]
 }
