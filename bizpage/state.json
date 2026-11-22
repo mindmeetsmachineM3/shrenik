@@ -4,20 +4,21 @@
   "Custom T-Shirt Printing",
   "Doorstep Bike Wash",
   "Canva Design Assistant",
-  "Doorstep Sofa Cleaning"
+  "Doorstep Sofa Cleaning",
+  "Fresh Fruit Bowl Delivery"
  ],
- "count": 5,
+ "count": 6,
  "date": "2026-11-22",
  "slots": [
   {
    "t": "09:34",
    "fmt": "reel",
-   "done": false
+   "done": true
   },
   {
    "t": "12:07",
    "fmt": "carousel",
-   "done": false
+   "done": true
   },
   {
    "t": "16:31",
