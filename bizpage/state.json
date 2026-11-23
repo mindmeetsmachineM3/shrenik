@@ -6,20 +6,21 @@
   "Canva Design Assistant",
   "Doorstep Sofa Cleaning",
   "Fresh Fruit Bowl Delivery",
-  "Mosquito Net Installation"
+  "Mosquito Net Installation",
+  "Indoor Plant Setup"
  ],
- "count": 7,
+ "count": 8,
  "date": "2026-11-23",
  "slots": [
   {
    "t": "09:20",
    "fmt": "poster",
-   "done": false
+   "done": true
   },
   {
    "t": "13:56",
    "fmt": "carousel",
-   "done": false
+   "done": true
   },
   {
    "t": "18:34",
