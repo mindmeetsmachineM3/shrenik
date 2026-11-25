@@ -8,20 +8,21 @@
   "Fresh Fruit Bowl Delivery",
   "Mosquito Net Installation",
   "Indoor Plant Setup",
-  "Doorstep Mobile Screen Guard"
+  "Doorstep Mobile Screen Guard",
+  "Custom Gift Hamper Business"
  ],
- "count": 9,
+ "count": 10,
  "date": "2026-11-25",
  "slots": [
   {
    "t": "08:17",
    "fmt": "poster",
-   "done": false
+   "done": true
   },
   {
    "t": "12:56",
    "fmt": "poster",
-   "done": false
+   "done": true
   },
   {
    "t": "18:40",
