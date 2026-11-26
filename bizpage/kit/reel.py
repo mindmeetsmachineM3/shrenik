@@ -203,20 +203,26 @@ def build(idea, num, handle, palette, out_path, voice_mode="auto", seed=7, lang=
     P = Pal(palette)
     rng = random.Random(seed)
     tf = rng.choice(gfx.TITLE_FONTS[:3])
-    order = ["hook", "what", "invest", "steps", "earn", "cta"]
+    hs = idea.get("kind") == "hisaab"
+    if hs:
+        from . import wb
+        order, SC, NS = wb.KEYS, wb.build_scene_cls(Scene, _L), len(wb.KEYS)
+        P = wb.P
+    else:
+        order, SC, NS = ["hook", "what", "invest", "steps", "earn", "cta"], Scene, 6
     texts = [idea["say"][k] for k in order]
     wavs, vlabel = _voices(texts, tmp, voice_mode, lang)
     if voice_mode != "none" and not all(wavs):            # never post a silent Reel by accident
         raise RuntimeError("voice failed for some scenes, Reel not made (see 'voice failed' lines above)")
     vlens = [_wav_len(w) if w else 3.2 for w in wavs]
-    durs = [v + PAD + (1.2 if k == 5 else 0) for k, v in enumerate(vlens)]
+    durs = [v + PAD + (1.2 if k == NS - 1 else 0) for k, v in enumerate(vlens)]
     cmd = [FFMPEG, "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{RW}x{RH}", "-r", str(FPS), "-i", "-",
            "-c:v", "libx264", "-preset", "veryfast", "-crf", "21", "-pix_fmt", "yuv420p", "-an", str(tmp / "video.mp4")]
     pr = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     total = sum(durs)
     done_t = 0.0
-    for k in range(6):
-        sc = Scene(P, tf, idea, num, handle, k, 6, seed + k * 7)
+    for k in range(NS):
+        sc = SC(P, tf, idea, num, handle, k, NS, seed + k * 7)
         subs = {}
         for f in range(int(durs[k] * FPS)):
             t = f / FPS
