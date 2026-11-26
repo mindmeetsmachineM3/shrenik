@@ -9,20 +9,21 @@
   "Mosquito Net Installation",
   "Indoor Plant Setup",
   "Doorstep Mobile Screen Guard",
-  "Custom Gift Hamper Business"
+  "Custom Gift Hamper Business",
+  "Pani Puri Cart"
  ],
- "count": 10,
+ "count": 11,
  "date": "2026-11-26",
  "slots": [
   {
    "t": "10:26",
    "fmt": "poster",
-   "done": false
+   "done": true
   },
   {
    "t": "12:48",
    "fmt": "poster",
-   "done": false
+   "done": true
   },
   {
    "t": "16:21",
@@ -34,5 +35,105 @@
    "fmt": "reel",
    "done": false
   }
- ]
+ ],
+ "today_idea": {
+  "date": "2026-11-26",
+  "raw": {
+   "name": "Pani Puri Cart",
+   "unit": "plate",
+   "icon": "food",
+   "price": 30,
+   "hook": "Rs 1 lakh se pani puri cart: kitna kamaya?",
+   "capital_items": [
+    {
+     "n": "Cart",
+     "amt": 22000,
+     "d": "Glass-top cart"
+    },
+    {
+     "n": "Pani containers",
+     "amt": 5000,
+     "d": "Steel pots and taps"
+    },
+    {
+     "n": "Gas set",
+     "amt": 6500,
+     "d": "For boiling potatoes"
+    },
+    {
+     "n": "Utensils",
+     "amt": 5000,
+     "d": "Plates, spoons, trays"
+    },
+    {
+     "n": "FSSAI + board",
+     "amt": 3500,
+     "d": "Licence and sign"
+    }
+   ],
+   "unit_costs": [
+    {
+     "n": "6 puri",
+     "amt": 4.0
+    },
+    {
+     "n": "Pani + masala",
+     "amt": 5.0
+    },
+    {
+     "n": "Aloo + chana",
+     "amt": 4.0
+    },
+    {
+     "n": "Plate + gas",
+     "amt": 3.0
+    }
+   ],
+   "scenarios": [
+    {
+     "label": "Kamzor jagah",
+     "per_day": 40,
+     "fixed": 3000,
+     "note": "Chhoti gali"
+    },
+    {
+     "label": "Theek-thaak",
+     "per_day": 90,
+     "fixed": 5000,
+     "note": "Society gate"
+    },
+    {
+     "label": "Viral jagah",
+     "per_day": 170,
+     "fixed": 12500,
+     "note": "Market + helper"
+    }
+   ],
+   "truths": [
+    "Shaam ke 3-4 ghante hi asli bikri hoti hai",
+    "Hygiene pe ek complaint, aur customer gaya",
+    "Barish mein bikri gir jaati hai"
+   ],
+   "tasks": [
+    {
+     "t": "Jagah chuno",
+     "d": "Shaam ko bheed wali jagah 3 din dekho"
+    },
+    {
+     "t": "Swad pakka karo",
+     "d": "Pani ka swad 20 logon se test karo"
+    },
+    {
+     "t": "FSSAI le lo",
+     "d": "Basic registration online"
+    },
+    {
+     "t": "Safai dikhao",
+     "d": "Saaf plate, dhakka hua pani"
+    }
+   ],
+   "question": "Aapke sheher ka best pani puri wala kaunsa?",
+   "budget": 100000
+  }
+ }
 }
