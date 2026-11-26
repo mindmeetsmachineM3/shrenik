@@ -1,8 +1,8 @@
-"""Auto-post to Instagram: 4 random times per day (IST), one new business idea per post.
+"""Auto-post to Instagram: 4 random times per day (IST). Each day ONE business gets its "asli hisaab" (real arithmetic) and all of the day's posts use it: Reel, carousel, 2 posters.
 python autopost.py [--dry-run] [--diagnose] [--force reel|carousel|poster]"""
 import argparse, datetime as dt, json, os, random, sys
 
-from kit import content, gfx, ig, posters, reel
+from kit import hisaab, ig, reel, wb
 from kit.common import ROOT
 
 IST = dt.timezone(dt.timedelta(hours=5, minutes=30))
@@ -45,28 +45,36 @@ else:
         print("Nothing due now.", hm, [(x["t"], x["fmt"], x["done"]) for x in state["slots"]]); ST.write_text(json.dumps(state, indent=1)); sys.exit(0)
 
 seed = int(now.strftime("%y%m%d")) * 100 + state["count"] % 100
-rng = random.Random(seed)
-pal = rng.choice(list(gfx.PALETTES)); P = gfx.Pal(pal); tf = rng.choice(gfx.TITLE_FONTS[:3]); h = cfg["handle"]
-idea, how = content.make_idea(cfg, rng, True, state["used"])
-num = state["count"] + 1
+rng = random.Random(today)
+h = cfg["handle"]
+td = state.get("today_idea")
+fresh = False
+if td and td.get("date") == today and td.get("raw"):
+    idea, how = hisaab.compute(td["raw"], cfg), "today's hisaab (reused)"
+else:
+    idea, how = hisaab.make_idea(cfg, rng, True, state["used"])
+    fresh = True
+num = state["count"] + (1 if fresh else 0)
+seed += sum(1 for s_ in state["slots"] if s_["done"])
 out = ROOT / "output" / f"post_{seed}"; out.mkdir(parents=True, exist_ok=True)
 tags = " ".join(idea["hashtags"][:10]); fmt = slot["fmt"]
 print(f"Making a {fmt}: {idea['name']} ({how})")
 try:
     if fmt == "reel":
         p = out / "reel.mp4"
-        info = reel.build(idea, num, h, pal, p, "auto", seed, cfg.get("voice_lang", "hinglish"))
+        info = reel.build(idea, num, h, "sun", p, "auto", seed, cfg.get("voice_lang", "hinglish"))
         caption = f"{idea['captions']['reel']}\n\n{tags}"; print(info)
         mid = None if a.dry_run else ig.reel(str(p), caption)
     elif fmt == "carousel":
         ps = []
-        for k, im in enumerate(posters.carousel(idea, P, seed, h, num, tf), 1):
+        for k, im in enumerate(wb.carousel(idea, h), 1):
             q = out / f"c{k}.jpg"; im.save(q, quality=93); ps.append(str(q))
         caption = f"{idea['captions']['carousel']}\n\n{tags}"
         mid = None if a.dry_run else ig.carousel(ps, caption)
     else:
         q = out / "poster.jpg"
-        (posters.post_card if rng.random() < .5 else posters.post_numbers)(idea, P, seed, h, num, tf).save(q, quality=93)
+        n_done = sum(1 for s_ in state["slots"] if s_["fmt"] == "poster" and s_["done"])
+        (wb.poster_unit if n_done % 2 == 0 else wb.poster_scen)(idea, h).save(q, quality=93)
         caption = f"{idea['captions']['post']}\n\n{tags}"
         mid = None if a.dry_run else ig.image(str(q), caption)
 except ig.TokenError as ex:
@@ -76,5 +84,7 @@ print("Caption:\n" + caption)
 print("Posted media id:" if mid else "Dry run (not posted).", mid or "")
 if not a.dry_run:
     slot["done"] = True
-    state["used"] = (state["used"] + [idea["name"]])[-80:]; state["count"] += 1
+    if fresh:
+        state["used"] = (state["used"] + [idea["name"]])[-80:]; state["count"] += 1
+    state["today_idea"] = {"date": today, "raw": idea["_raw"] if "_raw" in idea else td["raw"]}
 ST.write_text(json.dumps(state, indent=1))
