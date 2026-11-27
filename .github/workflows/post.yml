@@ -2,7 +2,18 @@ name: Biz auto-post
 # Runs every 20 min between 07:30 and 23:30 IST. Each day it picks 4 random times and posts when one is due.
 on:
   schedule:
-    - cron: "7,27,47 2-17 * * *"
+    - cron: "53 2 * * *"    # 08:23 IST
+    - cron: "47 4 * * *"    # 10:17 IST
+    - cron: "41 5 * * *"    # 11:11 IST
+    - cron: "23 6 * * *"    # 11:53 IST
+    - cron: "9 7 * * *"    # 12:39 IST
+    - cron: "11 8 * * *"    # 13:41 IST
+    - cron: "37 9 * * *"    # 15:07 IST
+    - cron: "37 10 * * *"    # 16:07 IST
+    - cron: "29 11 * * *"    # 16:59 IST
+    - cron: "29 13 * * *"    # 18:59 IST
+    - cron: "17 14 * * *"    # 19:47 IST
+    - cron: "41 15 * * *"    # 21:11 IST
   workflow_dispatch:
     inputs:
       force:
