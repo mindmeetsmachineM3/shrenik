@@ -10,20 +10,21 @@
   "Indoor Plant Setup",
   "Doorstep Mobile Screen Guard",
   "Custom Gift Hamper Business",
-  "Pani Puri Cart"
+  "Pani Puri Cart",
+  "Doorstep RO Purifier Service"
  ],
- "count": 11,
+ "count": 12,
  "date": "2026-11-27",
  "slots": [
   {
    "t": "08:23",
    "fmt": "poster",
-   "done": false
+   "done": true
   },
   {
    "t": "12:38",
    "fmt": "poster",
-   "done": false
+   "done": true
   },
   {
    "t": "16:07",
@@ -37,103 +38,129 @@
   }
  ],
  "today_idea": {
-  "date": "2026-11-26",
+  "date": "2026-11-27",
   "raw": {
-   "name": "Pani Puri Cart",
-   "unit": "plate",
-   "icon": "food",
-   "price": 30,
-   "hook": "Rs 1 lakh se pani puri cart: kitna kamaya?",
+   "name": "Doorstep RO Purifier Service",
+   "unit": "service",
+   "icon": "gear",
+   "price": 650,
+   "hook": "50k me Doorstep RO Service business ka hisaab",
    "capital_items": [
     {
-     "n": "Cart",
-     "amt": 22000,
-     "d": "Glass-top cart"
+     "n": "RO Repair Toolkit",
+     "amt": 1499,
+     "d": "Spanner and basic plumbing tools",
+     "tag": "anumaan"
     },
     {
-     "n": "Pani containers",
-     "amt": 5000,
-     "d": "Steel pots and taps"
+     "n": "Digital TDS Meter",
+     "amt": 299,
+     "d": "Water quality testing meter",
+     "tag": "anumaan"
     },
     {
-     "n": "Gas set",
-     "amt": 6500,
-     "d": "For boiling potatoes"
+     "n": "High Pressure Pump",
+     "amt": 3499,
+     "d": "Portable cleaning pressure washer",
+     "tag": "anumaan"
     },
     {
-     "n": "Utensils",
-     "amt": 5000,
-     "d": "Plates, spoons, trays"
+     "n": "Bulk Spare Parts",
+     "amt": 18500,
+     "d": "Filters connectors and pipe stock",
+     "tag": "anumaan"
     },
     {
-     "n": "FSSAI + board",
-     "amt": 3500,
-     "d": "Licence and sign"
+     "n": "Branding & Flyers",
+     "amt": 2500,
+     "d": "Visiting cards and society flyers",
+     "tag": "anumaan"
     }
    ],
    "unit_costs": [
     {
-     "n": "6 puri",
-     "amt": 4.0
+     "n": "Sediment Filter 1pc",
+     "amt": 75.0,
+     "tag": "anumaan"
     },
     {
-     "n": "Pani + masala",
-     "amt": 5.0
+     "n": "Pre Carbon Filter 1pc",
+     "amt": 90.0,
+     "tag": "anumaan"
     },
     {
-     "n": "Aloo + chana",
-     "amt": 4.0
+     "n": "Connectors and Elbows",
+     "amt": 25.0,
+     "tag": "anumaan"
     },
     {
-     "n": "Plate + gas",
-     "amt": 3.0
+     "n": "Bike Petrol per Visit",
+     "amt": 40.0,
+     "tag": "anumaan"
+    },
+    {
+     "n": "Cleaning Solvent Cloth",
+     "amt": 15.0,
+     "tag": "anumaan"
     }
    ],
    "scenarios": [
     {
      "label": "Kamzor jagah",
-     "per_day": 40,
-     "fixed": 3000,
-     "note": "Chhoti gali"
+     "per_day": 2,
+     "fixed": 2000,
+     "note": "Low awareness and slow bookings"
     },
     {
      "label": "Theek-thaak",
-     "per_day": 90,
-     "fixed": 5000,
-     "note": "Society gate"
+     "per_day": 5,
+     "fixed": 4000,
+     "note": "Steady local apartment orders"
     },
     {
      "label": "Viral jagah",
-     "per_day": 170,
-     "fixed": 12500,
-     "note": "Market + helper"
+     "per_day": 9,
+     "fixed": 12000,
+     "note": "Society tie-ups and helper hired"
     }
    ],
    "truths": [
-    "Shaam ke 3-4 ghante hi asli bikri hoti hai",
-    "Hygiene pe ek complaint, aur customer gaya",
-    "Barish mein bikri gir jaati hai"
+    "Low quality duplicate spare parts destroy customer trust very fast.",
+    "Travel time between locations limits maximum daily services you can do.",
+    "Monsoon season brings sudden heavy demand due to dirty water."
    ],
    "tasks": [
     {
-     "t": "Jagah chuno",
-     "d": "Shaam ko bheed wali jagah 3 din dekho"
+     "t": "Buy Repair Toolkit",
+     "d": "Get standard RO toolkit and TDS meter from online listings."
     },
     {
-     "t": "Swad pakka karo",
-     "d": "Pani ka swad 20 logon se test karo"
+     "t": "Tie Up Wholesalers",
+     "d": "Find local RO spare parts distributors for bulk discounts."
     },
     {
-     "t": "FSSAI le lo",
-     "d": "Basic registration online"
+     "t": "Distribute Pamphlets",
+     "d": "Target residential apartments with free water test offers."
     },
     {
-     "t": "Safai dikhao",
-     "d": "Saaf plate, dhakka hua pani"
+     "t": "Set Rate Card",
+     "d": "Fix transparent pricing for regular servicing and part replacements."
     }
    ],
-   "question": "Aapke sheher ka best pani puri wala kaunsa?",
-   "budget": 100000
+   "question": "Kya aap ghar par local RO service karwana chahoge?",
+   "sources": [],
+   "hashtags": [
+    "#roservice",
+    "#doorstepservice",
+    "#smallbusinessindia",
+    "#startupindia",
+    "#tier2cities",
+    "#homeappliance",
+    "#businessideas",
+    "#aslihisaab",
+    "#entrepreneurship"
+   ],
+   "budget": 50000
   }
  }
 }
